@@ -2,29 +2,29 @@
 
 SQL Queries:
 
-SELECT country, COUNT(revenue)
-FROM visitortransactions
-GROUP BY country
-HAVING count(revenue) > 0
-ORDER BY COUNT(revenue) DESC
+	SELECT country, COUNT(revenue)
+	FROM visitortransactions
+	GROUP BY country
+	HAVING count(revenue) > 0
+	ORDER BY COUNT(revenue) DESC
 
-SELECT country, SUM(revenue)
-FROM visitortransactions
-GROUP BY country
-HAVING SUM(revenue) > 0
-ORDER BY SUM(revenue) DESC
+	SELECT country, SUM(revenue)
+	FROM visitortransactions
+	GROUP BY country
+	HAVING SUM(revenue) > 0
+	ORDER BY SUM(revenue) DESC
 
-SELECT city, COUNT(revenue)
-FROM visitortransactions
-GROUP BY city
-HAVING count(revenue) > 0
-ORDER BY COUNT(revenue) DESC
+	SELECT city, COUNT(revenue)
+	FROM visitortransactions
+	GROUP BY city
+	HAVING count(revenue) > 0
+	ORDER BY COUNT(revenue) DESC
 
-SELECT city, SUM(revenue)
-FROM visitortransactions
-GROUP BY city
-HAVING SUM(revenue) > 0
-ORDER BY SUM(revenue) DESC
+	SELECT city, SUM(revenue)
+	FROM visitortransactions
+	GROUP BY city
+	HAVING SUM(revenue) > 0
+	ORDER BY SUM(revenue) DESC
 
 Answer:
 
@@ -39,26 +39,26 @@ In terms of cities, out of the top 10 cities, 9 are located within the United St
 
 SQL Queries:
 
-SELECT country, AVG(quantity)
-FROM visitortransactions
-GROUP BY country
-HAVING AVG(quantity) is not null
-ORDER BY AVG(quantity) DESC
+	SELECT country, AVG(quantity)
+	FROM visitortransactions
+	GROUP BY country
+	HAVING AVG(quantity) is not null
+	ORDER BY AVG(quantity) DESC
 
-SELECT * 
-FROM visitortransactions
-WHERE 	country = 'Spain' AND
+	SELECT * 
+	FROM visitortransactions
+	WHERE 	country = 'Spain' AND
 		revenue is not null
 
-SELECT city, AVG(quantity)
-FROM visitortransactions
-GROUP BY city
-HAVING AVG(quantity) is not null
-ORDER BY AVG(quantity) DESC
+	SELECT city, AVG(quantity)
+	FROM visitortransactions
+	GROUP BY city
+	HAVING AVG(quantity) is not null
+	ORDER BY AVG(quantity) DESC
 
-SELECT * 
-FROM visitortransactions
-WHERE 	city = 'Madrid' AND
+	SELECT * 
+	FROM visitortransactions
+	WHERE 	city = 'Madrid' AND
 		revenue is not null
   
 Answer:
@@ -74,19 +74,19 @@ Sorting by city, (query #3) we can see that Atlanta leads the highest number of 
 
 SQL Queries:
 
-SELECT COUNT(revenue), COUNT(category), category, country
-FROM visitortransactions v
-JOIN productdetails p ON v.sku = p.productsku
-WHERE country = 'United States' 		-- OR 'Canada' OR 'Isreal'
-GROUP BY country, category
-ORDER BY count(category) DESC
+	SELECT COUNT(revenue), COUNT(category), category, country
+	FROM visitortransactions v
+	JOIN productdetails p ON v.sku = p.productsku
+	WHERE country = 'United States' 		-- OR 'Canada' OR 'Isreal'
+	GROUP BY country, category
+	ORDER BY count(category) DESC
 
-SELECT COUNT(revenue), COUNT(category), category, city
-FROM visitortransactions v
-JOIN productdetails p ON v.sku = p.productsku
-WHERE city = 'New York' 			-- OR 'Sunnyvale' OR 'Mountain View'
-GROUP BY city, category
-ORDER BY count(category) DESC
+	SELECT COUNT(revenue), COUNT(category), category, city
+	FROM visitortransactions v
+	JOIN productdetails p ON v.sku = p.productsku
+	WHERE city = 'New York' 			-- OR 'Sunnyvale' OR 'Mountain View'
+	GROUP BY city, category
+	ORDER BY count(category) DESC
 
 Answer:
 
@@ -102,13 +102,13 @@ Across the top 3 highest transaction cities, (New York, Sunnyvale and Mountain V
 
 SQL Queries:
 
-SELECT country, productname, COUNT(productname), COUNT(revenue)
-FROM visitortransactions v
-JOIN productdetails p ON v.sku = p.productsku
-GROUP BY country, productname
-HAVING COUNT(revenue) > 0
-ORDER BY COUNT(productname) DESC
-LIMIT 1
+	SELECT country, productname, COUNT(productname), COUNT(revenue)
+	FROM visitortransactions v
+	JOIN productdetails p ON v.sku = p.productsku
+	GROUP BY country, productname
+	HAVING COUNT(revenue) > 0
+	ORDER BY COUNT(productname) DESC
+	LIMIT 1
 
 Answer:
 
@@ -125,20 +125,13 @@ In Israel the "Protect Smoke + CO Black Wired Alarm-USA" was the top-seller. The
 
 SQL Queries:
 
-SELECT country, productname, category, quantity, SUM(revenue)
-FROM visitortransactions v
-JOIN productdetails p ON v.sku = p.productsku
-GROUP BY country, productname, category, quantity
-HAVING SUM(revenue) > 0
-ORDER BY SUM(revenue) DESC
+	SELECT country, productname, category, quantity, SUM(revenue)
+	FROM visitortransactions v
+	JOIN productdetails p ON v.sku = p.productsku
+	GROUP BY country, productname, category, quantity
+	HAVING SUM(revenue) > 0
+	ORDER BY SUM(revenue) DESC
 
 Answer:
 
 Since we have discussed that the highest transactional countries and cities have a general pattern to their product interest from above, it makes sense to talk about the impact of revenue as a general analysis instead of breaking it up by country and city. In general, apparel items are ordered in larger quantities but have a lower unitprice. In contrast, electronic and tech items are ordered in much smaller quantities but have a significantly higher unitprice. Both of these models of products do well to generate revenue for the company. However, there are many skus of products that do not sell or sell in low quantities yet also have low unitprices. There may be reason to drop these products in favor of targetting more profitable products. 
-
-
-
-
-
-
-

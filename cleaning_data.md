@@ -16,7 +16,8 @@ Queries:
 ------------------------------------------
 --query 1 + 2
 ------------------------------------------
-	CREATE TABLE analytics2 (
+	
+ 	CREATE TABLE analytics2 (
 		visitnumber VARCHAR,
 		visitid VARCHAR,
 		visitstarttime VARCHAR,
@@ -31,7 +32,7 @@ Queries:
 
 ------------------------------------------
 
-	INSERT INTO analytics2 (visitnumber, visitid, visitstarttime, date, channelgrouping, units_sold, pageview, timeonsite, revenue, unit_price)
+	INSERT INTO analytics2 (visitnumber, visitid, visitstarttime, date, channelgrouping, units_sold, pageview, 			timeonsite, revenue, unit_price)
 	SELECT DISTINCT
   		visitnumber, 
 		visitid, 
@@ -48,7 +49,8 @@ Queries:
 ------------------------------------------
 --query 3 + 4
 ------------------------------------------
-	CREATE TABLE visitortransactions (
+	
+ 	CREATE TABLE visitortransactions (
 		visitorid VARCHAR,
 		country	VARCHAR,
 		city VARCHAR,
@@ -186,37 +188,47 @@ Queries:
  ------------------------------------------
 --query 5 + 6
 ------------------------------------------
-
+	
+ 	ALTER TABLE visitortransactions
+	ADD COLUMN websitevisitid INT
 
 ------------------------------------------
 
-
+	UPDATE visitortransactions
+	SET websitevisitid = subquery.running_count
+		FROM (
+   			SELECT visitorid, date, timeonsite, 
+           			COUNT(*) OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS 					running_count
+    			FROM visitortransactions
+		) AS subquery
+	WHERE visitortransactions.visitorid = subquery.visitorid AND visitortransactions.date = subquery.date;
 
 ------------------------------------------
 --query 7 + 8
 ------------------------------------------
-	CREATE TABLE productdetails(
-	productsku VARCHAR,
-	productname VARCHAR,
-	category VARCHAR,
-	stocklevel INT,
-	restockingleadtime INT,
-	sentimentscore decimal,
-	sentimentmagnitude decimal
- 	PRIMARY KEY (productsku)
-	)
+	
+ 	CREATE TABLE productdetails(
+		productsku VARCHAR,
+		productname VARCHAR,
+		category VARCHAR,
+		stocklevel INT,
+		restockingleadtime INT,
+		sentimentscore decimal,
+		sentimentmagnitude decimal
+ 		PRIMARY KEY (productsku)
+		)
 
 ------------------------------------------
 
 	INSERT INTO productdetails(
-	productsku,
-	productname,
-	category,
-	stocklevel,
-	restockingleadtime,
-	sentimentscore,
-	sentimentmagnitude
-	)
+		productsku,
+		productname,
+		category,
+		stocklevel,
+		restockingleadtime,
+		sentimentscore,
+		sentimentmagnitude
+		)
 	SELECT 	
 	DISTINCT CASE 
 		WHEN productsku is not null THEN productsku

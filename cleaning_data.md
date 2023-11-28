@@ -7,7 +7,7 @@ To address the issue of the missing PK in 'visitortransactions', a seperate proc
     
 In the final step of cleaning data, the products needed to be combined from different sources. The PRIMARY KEY was much easier to identify as the sku and so no further steps were needed to address this issue. With some altering of data types, the main challenge was to identify the 'category' and combine as needed. Though not perfect, my query allowed for a general clean of the 'category' column, enough for analysis to take place (query 7 + 8). Unfortunately, I was unable to determine skus from the 'analytics2' table and therefore they were kept as null to prevent skewing the data.
 
-Many other columns were excluded from the cleaning process due to insufficient information as to what the column represented (eg. 'ratio'), the column being entirely null (eg. 'transactionid'), the column being redundant and only displaying one value (eg. 'socialengagementtype') or not necessary to answer questions in this project (eg. 'currencycode').    
+In general, however, I still had difficulty assigning PRIMARY KEYS to both of my relations due to repeating data throughout despite my best attempts (more on this in future considerations). The lack of PRIMARY KEYS however should not affect my analysis results as I was able to aggregate all the functions I was trying to inquiry about. During the cleaning process, many other columns were excluded due to insufficient information as to what the column represented (eg. 'ratio'), the column being entirely null (eg. 'transactionid'), the column being redundant and only displaying one value (eg. 'socialengagementtype') or not necessary to answer questions in this project (eg. 'currencycode').    
 
 
       
@@ -215,8 +215,7 @@ Queries:
 		restockingleadtime INT,
 		sentimentscore decimal,
 		sentimentmagnitude decimal
- 		PRIMARY KEY (productsku)
-		)
+ 		)
 
 ------------------------------------------
 

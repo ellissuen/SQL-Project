@@ -74,10 +74,25 @@ Sorting by city, (query #3) we can see that Atlanta leads the highest number of 
 
 SQL Queries:
 
+SELECT COUNT(revenue), COUNT(category), category, country
+FROM visitortransactions v
+JOIN productdetails p ON v.sku = p.productsku
+WHERE country = 'United States' 		-- OR 'Canada' OR 'Isreal'
+GROUP BY country, category
+ORDER BY count(category) DESC
 
+SELECT COUNT(revenue), COUNT(category), category, city
+FROM visitortransactions v
+JOIN productdetails p ON v.sku = p.productsku
+WHERE city = 'New York' 			-- OR 'Sunnyvale' OR 'Mountain View'
+GROUP BY city, category
+ORDER BY count(category) DESC
 
 Answer:
 
+Across the top 3 highest transaction countries, (United States, Canada and Isreal) all have similar purchasing patterns in which apparel - specifically men's apparel takes the top spots as most sold. This is followed closely by electronic or tech related purchases such as Google or Youtube branded products. (query #1)
+
+Across the top 3 highest transaction cities, (New York, Sunnyvale and Mountain View) a similar pattern emerges where apparel purchases are the most common, followed closely by tech and electronic purchases. (query #2)
 
 
 
@@ -87,10 +102,21 @@ Answer:
 
 SQL Queries:
 
-
+SELECT country, productname, COUNT(productname), COUNT(revenue)
+FROM visitortransactions v
+JOIN productdetails p ON v.sku = p.productsku
+GROUP BY country, productname
+HAVING COUNT(revenue) > 0
+ORDER BY COUNT(productname) DESC
+LIMIT 1
 
 Answer:
 
+In the United States, and in New York the "Men's 100% Cotton Short Sleeve Hero Tee White" is the best seller. 
+
+Where as in Canada, the "Twill Cap" sold best. Between the cotton short sleeve and twill cap, over 1600 transactions were ordered with these products.
+
+In Israel the "Protect Smoke + CO Black Wired Alarm-USA" was the top-seller. The "Protect Smoke + CO Black Wired Alarm-USA" also was the top-seller in Mountain View. 
 
 
 
@@ -99,9 +125,16 @@ Answer:
 
 SQL Queries:
 
-
+SELECT country, productname, category, quantity, SUM(revenue)
+FROM visitortransactions v
+JOIN productdetails p ON v.sku = p.productsku
+GROUP BY country, productname, category, quantity
+HAVING SUM(revenue) > 0
+ORDER BY SUM(revenue) DESC
 
 Answer:
+
+Since we have discussed that the highest transactional countries and cities have a general pattern to their product interest from above, it makes sense to talk about the impact of revenue as a general analysis instead of breaking it up by country and city. In general, apparel items are ordered in larger quantities but have a lower unitprice. In contrast, electronic and tech items are ordered in much smaller quantities but have a significantly higher unitprice. Both of these models of products do well to generate revenue for the company. However, there are many skus of products that do not sell or sell in low quantities yet also have low unitprices. There may be reason to drop these products in favor of targetting more profitable products. 
 
 
 

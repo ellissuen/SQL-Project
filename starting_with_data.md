@@ -79,7 +79,7 @@ SQL Queries:
 
       --returns the product, category it belongs to, preference and the number of transactions made on that preferred product
       SELECT productname, category, sentimentscore * sentimentmagnitude AS preference, COUNT(revenue)
-      FROM productdetails p
+      FROM productdistinct p
       JOIN visitortransactions v ON p.productsku = v.sku 
       WHERE revenue is not null
         AND sentimentscore is not null
@@ -90,7 +90,7 @@ SQL Queries:
       --returns the product, category it belongs to, preference and the number of transactions made on that preferred product
       --BUT! focusing only on the low preference scoring products
       SELECT productname, category, sentimentscore * sentimentmagnitude AS preference, COUNT(revenue)
-      FROM productdetails p
+      FROM productdistinct p
       JOIN visitortransactions v ON p.productsku = v.sku 
       WHERE revenue is not null
         AND sentimentscore is not null

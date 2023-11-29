@@ -87,7 +87,7 @@ SQL Queries:
 	--returns the country and category sorted by the number of transactions made and the number of products in each 	category sold
  	SELECT COUNT(revenue), COUNT(category), category, country
 	FROM visitortransactions v
-	JOIN productdetails p ON v.sku = p.productsku
+	JOIN productdistinct p ON v.sku = p.productsku
 	WHERE country = 'United States' 		-- OR 'Canada' OR 'Isreal'
 	GROUP BY country, category
 	ORDER BY count(category) DESC
@@ -95,7 +95,7 @@ SQL Queries:
 	--returns the city and category sorted by the number of transactions made and the number of products in each 		category sold
 	SELECT COUNT(revenue), COUNT(category), category, city
 	FROM visitortransactions v
-	JOIN productdetails p ON v.sku = p.productsku
+	JOIN productdistinct p ON v.sku = p.productsku
 	WHERE city = 'New York' 			-- OR 'Sunnyvale' OR 'Mountain View'
 	GROUP BY city, category
 	ORDER BY count(category) DESC
@@ -117,7 +117,7 @@ SQL Queries:
 	--returns the country and product sorted by the number of products and the number of transactions
 	SELECT country, productname, COUNT(productname), COUNT(revenue)
 	FROM visitortransactions v
-	JOIN productdetails p ON v.sku = p.productsku
+	JOIN productdistinct p ON v.sku = p.productsku
 	GROUP BY country, productname
 	HAVING COUNT(revenue) > 0
 	ORDER BY COUNT(productname) DESC
@@ -141,7 +141,7 @@ SQL Queries:
 	--returns the country, product, which category the product is from and number of products sorted by the total 		revenue that visitors generated
 	SELECT country, productname, category, quantity, SUM(revenue)
 	FROM visitortransactions v
-	JOIN productdetails p ON v.sku = p.productsku
+	JOIN productdistinct p ON v.sku = p.productsku
 	GROUP BY country, productname, category, quantity
 	HAVING SUM(revenue) > 0
 	ORDER BY SUM(revenue) DESC

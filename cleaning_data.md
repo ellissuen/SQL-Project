@@ -3,11 +3,9 @@ In cleaning the data, many assumptions were needed to be concluded before work c
 
 During the understanding data process, I realized that there were no PRIMARY KEYs to the relations 'all_sessions' and 'analytics' (and therefore 'analytics2'). I decided to tackle this later due to the mess of deciding between a conjuncted PRIMARY KEY or some other iteration. However, what did need to be tackled was that information for 'all_sessions' was somewhat similar to that of 'analytics2' and should be combined to form a more full picture of what the purchases across the ecommerce site looked like. Fortunately, two things made this process a bit easier. Earlier on in the understanding data, I determined that 'visitid' was a more useful metric of determining a user than the 'fullvisitorid'. Therefore I assigned 'visitid' as a foreign key between the two relations. It also happened that a large portion of the 'analytics2' visitid were present within the 'all_sessions' visitid - easing the ability to transform the 'analytics2.visitid's to having their own associated country and city. There were a few outliers and this process will be addressed in the QA part of the project. By combining these two relations with all_sessions still being the main relation, I was able to import all data into 1 relation. Along the way, I also decided to change data_types and change prices to a readable format. A large assumption that I had to make was that if there were a 'all_sessions.totaltransactionrevenue' or 'analytics2.revenue', then there should be a 'all_sessions.productquantity' or 'analytics2.units_sold' respectively and visa versa. This assumption may be incorrect due to not knowing when transaction revenue or quantities are recorded into the data. (more on this in QA / risks). With this assumption however, the 'visitortransactions' relation could be created with the 'revenue' and 'quantity' being calculated from each other. Many extra data points from 'analytics2' were dropped (more in QA) but a cleaned 'visitortransactions' chart was created (query 3 + 4). This relation alone helped me answer couple of the project's required and self made questions.
 
-To address the issue of the missing PK in 'visitortransactions', a seperate process of adding in a 'websiteviewid' was inserted after the relation was made. This was based on the 'date', 'visitorid', and 'timeonsite' metrics with the assumption that no single user would be on the site more than once per day and log the exact same timeonsite (to the second - more in QA). This allowed the chart to have a PK to identify instances of users visiting this ecommerce website. (query 5 + 6)
-    
-In the final step of cleaning data, the products needed to be combined from different sources. The PRIMARY KEY was much easier to identify as the sku and so no further steps were needed to address this issue. With some altering of data types, the main challenge was to identify the 'category' and combine as needed. Though not perfect, my query allowed for a general clean of the 'category' column, enough for analysis to take place (query 7 + 8). Unfortunately, I was unable to determine skus from the 'analytics2' table and therefore they were kept as null to prevent skewing the data.
+In the final step of cleaning data, the products needed to be combined from different sources. The PRIMARY KEY was much easier to identify as the sku and so no further steps were needed to address this issue. With some altering of data types, the main challenge was to identify the 'category' and combine as needed. Though not perfect, my query allowed for a general clean of the 'category' column, enough for analysis to take place (query 5 + 6). Unfortunately, I was unable to determine skus from the 'analytics2' table and therefore they were kept as null to prevent skewing the data.
 
-In general, however, I still had difficulty assigning PRIMARY KEYS to both of my relations due to repeating data throughout despite my best attempts (more on this in future considerations). The lack of PRIMARY KEYS however should not affect my analysis results as I was able to aggregate all the functions I was trying to inquiry about. During the cleaning process, many other columns were excluded due to insufficient information as to what the column represented (eg. 'ratio'), the column being entirely null (eg. 'transactionid'), the column being redundant and only displaying one value (eg. 'socialengagementtype') or not necessary to answer questions in this project (eg. 'currencycode').    
+In general, however, I still had difficulty assigning PRIMARY KEYS to both of my new relations since they were still missing usable primary keys. This was addressed in a very non-conventional way in which these previous tables were used to inform and make 2 new table - each with fully functioning primary keys. The 'visitorsdistinct' and 'productsdistinct' tables were my last effort to create these further cleaned tables. (queries 
 
 
       
@@ -190,18 +188,12 @@ Queries:
 ------------------------------------------
 	
  	ALTER TABLE visitortransactions
-	ADD COLUMN websitevisitid INT
+	ADD COLUMN id SERIAL PRIMARY KEY
 
 ------------------------------------------
 
 	UPDATE visitortransactions
-	SET websitevisitid = subquery.running_count
-		FROM (
-   			SELECT visitorid, date, timeonsite, 
-           			COUNT(*) OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS 					running_count
-    			FROM visitortransactions
-		) AS subquery
-	WHERE visitortransactions.visitorid = subquery.visitorid AND visitortransactions.date = subquery.date;
+	SET id = nextval(pg_get_serial_sequence('visitortransactions', 'id'));
 
 ------------------------------------------
 --query 7 + 8
@@ -249,3 +241,50 @@ Queries:
 	sentimentmagnitude :: decimal
 FROM all_sessions a
 LEFT JOIN products p ON a.productsku = p.sku 
+
+------------------------------------------
+--query 7 + 8
+------------------------------------------
+
+CREATE TABLE productdistinct(
+	sku VARCHAR
+ 	PRIMARY KEY (sku)
+  )
+
+INSERT INTO productdistinct
+SELECT 
+	DISTINCT productsku
+FROM all_sessions
+UNION
+SELECT 
+	DISTINCT sku
+FROM products
+
+ALTER TABLE distinctsku
+ADD COLUMN name VARCHAR,
+ADD COLUMN category VARCHAR,
+ADD COLUMN stocklevel INT,
+ADD COLUMN restockingleadtime INT,
+ADD COLUMN sentimentscore decimal,
+ADD COLUMN sentimentmagnitude decimal
+
+INSERT INTO productdistinct
+SELECT 	DISTINCT productsku, 
+		MAX(productname), 
+		MAX(category), 
+		MAX(stocklevel), 
+		MAX(restockingleadtime),
+		MAX(sentimentscore),
+		MAX(sentimentmagnitude)
+FROM productdetails
+GROUP BY productsku
+
+
+------------------------------------------
+--query 7 + 8
+------------------------------------------
+
+CREATE TABLE visitorsdistinct(
+	websitevisitid INT,
+	PRIMARY KEY (websitevisitid)
+)

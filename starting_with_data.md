@@ -99,5 +99,23 @@ SQL Queries:
       HAVING sentimentscore * sentimentmagnitude < 0         -- ONLY change from previous query
       ORDER BY COUNT(revenue) DESC
 
+      --general analysis of this questions 
+      SELECT 
+          COUNT(revenue) AS revenue_count,
+          preference
+      FROM (
+         SELECT 
+              revenue,
+              CASE                                                      -- split into low, med, high
+                  WHEN sentimentscore * sentimentmagnitude > 0.5 THEN 'high'
+                  WHEN sentimentscore * sentimentmagnitude >= 0 THEN 'med'
+                  WHEN sentimentscore * sentimentmagnitude < 0 THEN 'low'
+                  ELSE NULL
+                    END AS preference
+                FROM productdistinct p
+          JOIN visitortransactions v ON p.productsku = v.sku
+      ) AS subquery
+      GROUP BY preference;
+
 Answer:
-In general personal preference of a product does not seem to have a major factor of if a certain product is bought or not. However, there is significantly less amount of products that are bought from products that have a negative sentiment. This may be useful in identifying products that need to be improved so that customers are more drawn to purchasing them.
+In general personal preference of a product does not seem to have a major factor of if a certain product is bought or not. However, there is significantly less amount of products that are bought from products that have a negative sentiment. This may be useful in identifying products that need to be improved so that customers are more drawn to purchasing them. Most products that are purchased are either prefered highly or at least medium preference

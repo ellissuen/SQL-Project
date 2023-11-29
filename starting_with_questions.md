@@ -102,7 +102,7 @@ SQL Queries:
 
 Answer:
 
-Across the top 3 highest transaction countries, (United States, Canada and Isreal) all have similar purchasing patterns in which apparel - specifically men's apparel takes the top spots as most sold. This is followed closely by electronic or tech related purchases such as Google or Youtube branded products. (query #1)
+Across the top 3 highest transaction countries, (United States, Canada and Isreal) all have similar purchasing patterns in which electronic / tech products such as Youtube branded products takes the top spots as most sold. This is followed closely by apparel related purchases such. (query #1)
 
 Across the top 3 highest transaction cities, (New York, Sunnyvale and Mountain View) a similar pattern emerges where apparel purchases are the most common, followed closely by tech and electronic purchases. (query #2)
 

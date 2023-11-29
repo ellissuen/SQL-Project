@@ -14,11 +14,13 @@ Queries:
 ------------------------------------------
 --query 1 + 2
 ------------------------------------------
-	
+
+	-- to greatly reduce the redundancy of data from the original analytics table
+ 
  	CREATE TABLE analytics2 (
-		visitnumber VARCHAR,
-		visitid VARCHAR,
-		visitstarttime VARCHAR,
+		visitnumber VARCHAR,		-- all varchar formats in order to speed up the importing process
+		visitid VARCHAR,		-- data types will be fixed in the future
+		visitstarttime VARCHAR,		--primary keys will be assigned in the future
 		date VARCHAR,
 		channelgrouping VARCHAR,
 		units_sold VARCHAR,
@@ -30,8 +32,11 @@ Queries:
 
 ------------------------------------------
 
+	--insert these data types. From original analytics table, visitnumber, fullvisitorid, userid, socialenegagementtype
+ 	--and bounces will not be imported. 
+ 
 	INSERT INTO analytics2 (visitnumber, visitid, visitstarttime, date, channelgrouping, units_sold, pageview, 			timeonsite, revenue, unit_price)
-	SELECT DISTINCT
+	SELECT DISTINCT			--this allows for distinct combinations of rows to be imported into analytics2
   		visitnumber, 
 		visitid, 
 		visitstarttime, 
@@ -47,7 +52,10 @@ Queries:
 ------------------------------------------
 --query 3 + 4
 ------------------------------------------
-	
+
+	--visitortransactions will be a join of all_sessions and analytics2
+ 	--since visitid is still not distinct, the PK will be assigned later
+ 
  	CREATE TABLE visitortransactions (
 		visitorid VARCHAR,
 		country	VARCHAR,
@@ -79,23 +87,23 @@ Queries:
 		)
 	SELECT 	
 		visitid, 
-		CASE
-			WHEN country = '(not set)' THEN null
+		CASE									-- country cleaned of NULL responses
+			WHEN country = '(not set)' THEN null				--spelling of countries checked for consistency - no irregularities spotted
 			ELSE country
 			END AS country, 
 		CASE 
-			WHEN city = '(not set)' THEN null
-			WHEN city = 'not available in demo dataset' THEN null
+			WHEN city = '(not set)' THEN null				--city cleaned of NULL responses
+			WHEN city = 'not available in demo dataset' THEN null		--spelling of countries were checked for consistency - no irregularities spotted
 			ELSE city
 			END AS city,
 		channelgrouping, 
 		CASE 	
-			WHEN date ~ E'^\\d+\\.?\\d*$' THEN 		
-				TO_DATE(date, 'YYYYMMDD') 
+			WHEN date ~ E'^\\d+\\.?\\d*$' THEN 				--strange syntax error. ~ E'^\\d+\\.?\\d*$' allows for detection of any number
+				TO_DATE(date, 'YYYYMMDD') 				
 			ELSE NULL 
 			END AS date, 
 		CASE 	
-			WHEN timeonsite ~ E'^\\d+\\.?\\d*$' THEN		
+			WHEN timeonsite ~ E'^\\d+\\.?\\d*$' THEN			--timeonsite changed to a HH:MM:SS format
 				CAST(	
 					(CAST(timeonsite AS int) / 3600)::INTEGER || ':' || 
 					((CAST(timeonsite AS int) % 3600) / 60)::INTEGER || ':' || 
@@ -103,32 +111,32 @@ Queries:
 				AS interval)
 			ELSE NULL 
 			END AS timeonsite,
-		CASE 	
+		CASE 									--pageviews changed to INT
 			WHEN pageviews ~ E'^\\d+\\.?\\d*$' THEN 		
 				CAST(pageviews AS int) 
 			ELSE NULL 
 			END AS pageview, 
-		productsku,
-		CASE
-			WHEN totaltransactionrevenue ~ E'^\\d+\\.?\\d*$' THEN
-				CAST(ROUND(totaltransactionrevenue :: float) / (productprice :: float) AS INT) 
+		productsku,											--all columns dealing with $ values must be divided by 1000000
+		CASE												--if there is revenue but no quantity, this calculates a quantity (rounded down)
+			WHEN totaltransactionrevenue ~ E'^\\d+\\.?\\d*$' THEN					--this assumes that all transactions should have some product quantity sold. unsure of how data was gathered
+				CAST(ROUND(totaltransactionrevenue :: float) / (productprice :: float) AS INT) 	--must be assumed for now
 			WHEN productquantity ~ E'^\\d+\\.?\\d*$' THEN CAST(productquantity AS INT)
 			ELSE NULL
 			END AS quantity,
-		CASE
-			WHEN productprice ~ E'^\\d+\\.?\\d*$' THEN	
+		CASE									
+			WHEN productprice ~ E'^\\d+\\.?\\d*$' THEN			--productprice present no matter if there is transaction or not
 				CAST(productprice AS float)/1000000
 			ELSE NULL
 			END AS unitprice,
-		CASE 
-			WHEN totaltransactionrevenue ~ E'^\\d+\\.?\\d*$' THEN 
+		CASE 									--when there is a quantity, revenue is calculated from it
+			WHEN totaltransactionrevenue ~ E'^\\d+\\.?\\d*$' THEN 		--again assumption for now without any other information to work from
 				CAST(totaltransactionrevenue AS float)/1000000
 			WHEN productquantity ~ E'^\\d+\\.?\\d*$' THEN 
 				CAST((productquantity :: int) * (productprice :: int/1000000) AS float)
 			ELSE NULL
 			END AS revenue
 	FROM all_sessions
-	UNION
+	UNION										--same as above but for analytics
 	SELECT 	
 		a2.visitid,
 		CASE
@@ -136,9 +144,9 @@ Queries:
 			ELSE al.country
 			END AS country, 
 		CASE 
-			WHEN al.city = '(not set)' THEN null
-			WHEN al.city = 'not available in demo dataset' THEN null
-			ELSE city
+			WHEN al.city = '(not set)' THEN null				--city and country must be taken from all_sessions
+			WHEN al.city = 'not available in demo dataset' THEN null	--no data available in analytics2
+			ELSE city							--analytics2 is only joined on all_sessions when visitid is present in all_sessions ** big assumption ** will need to QA
 			END AS city,
 		a2.channelgrouping,
 		CASE 	
@@ -161,7 +169,7 @@ Queries:
 			ELSE NULL 
 			END AS pageview,
 		NULL,
-		CASE 
+		CASE 								--quantity all present, do not need to calculate like from all_sessions (above)
 			WHEN a2.units_sold ~ E'^\\d+\\.?\\d*$' THEN 
 				CAST(a2.units_sold as INT)
 			ELSE NULL
@@ -171,7 +179,7 @@ Queries:
 				CAST(a2.unit_price as float)/1000000
 			ELSE NULL
 			END AS unitprice,
-		CASE 	
+		CASE 								--need to calculate revenue if quantity is present but revenue is null
 			WHEN a2.revenue ~ E'^\\d+\\.?\\d*$' THEN 		
 				CAST(a2.revenue AS float)/100000
 			WHEN a2.units_sold ~ E'^\\d+\\.?\\d*$' THEN
@@ -187,19 +195,26 @@ Queries:
 --query 5 + 6
 ------------------------------------------
 	
- 	ALTER TABLE visitortransactions
+ 	-- new strategy, insert an id for visitortransactions that serves as primary key
+ 	
+  	ALTER TABLE visitortransactions
 	ADD COLUMN id SERIAL PRIMARY KEY
 
 ------------------------------------------
 
-	UPDATE visitortransactions
+	--update with PK with a running number to ensure unique entries
+ 
+ 	UPDATE visitortransactions
 	SET id = nextval(pg_get_serial_sequence('visitortransactions', 'id'));
 
 ------------------------------------------
 --query 7 + 8
 ------------------------------------------
 	
- 	CREATE TABLE productdetails(
+ 	--new table for products join from products table and all_sessions
+  	--productsku is PK. will be able to sort through the duplicates
+  	
+  	CREATE TABLE productdetails(
 		productsku VARCHAR,
 		productname VARCHAR,
 		category VARCHAR,
@@ -220,18 +235,18 @@ Queries:
 		sentimentscore,
 		sentimentmagnitude
 		)
-	SELECT 	
+	SELECT 							--distinct sku
 	DISTINCT CASE 
 		WHEN productsku is not null THEN productsku
 		ELSE sku
 		END AS productsku,
-	CASE WHEN name is not null THEN name
-		ELSE v2productname
+	CASE WHEN name is not null THEN name			--v2name from all_sessions
+		ELSE v2productname				--name from products
 		END AS productname,
-	SPLIT_PART (v2productcategory, '/', 
+	SPLIT_PART (v2productcategory, '/', 			
 		CASE
-        	WHEN v2productcategory = '(not set)' THEN NULL
-		WHEN v2productcategory ~ E'/$'
+        	WHEN v2productcategory = '(not set)' THEN NULL			--this allows to retain the last array from categories to be extracted
+		WHEN v2productcategory ~ E'/$'					--also gets rid of "/"
             	THEN CARDINALITY(string_to_array(v2productcategory, '/')) - 1
         	ELSE CARDINALITY(string_to_array(v2productcategory, '/'))
     		END) AS category,
@@ -243,48 +258,40 @@ FROM all_sessions a
 LEFT JOIN products p ON a.productsku = p.sku 
 
 ------------------------------------------
---query 7 + 8
+--query 9 + 10 + 11 + 12
 ------------------------------------------
 
-CREATE TABLE productdistinct(
-	sku VARCHAR
- 	PRIMARY KEY (sku)
-  )
+	--distinct PK did not work from above. after trial and error. productdetails will become an inbetween table for new table with PK
 
-INSERT INTO productdistinct
-SELECT 
-	DISTINCT productsku
-FROM all_sessions
-UNION
-SELECT 
-	DISTINCT sku
-FROM products
+	CREATE TABLE productdistinct(			--new table with PK
+		sku VARCHAR
+ 		PRIMARY KEY (sku)
+ 	)
 
-ALTER TABLE distinctsku
-ADD COLUMN name VARCHAR,
-ADD COLUMN category VARCHAR,
-ADD COLUMN stocklevel INT,
-ADD COLUMN restockingleadtime INT,
-ADD COLUMN sentimentscore decimal,
-ADD COLUMN sentimentmagnitude decimal
+	INSERT INTO productdistinct			--ensured distinct PK first
+	SELECT 
+		DISTINCT productsku
+		FROM all_sessions
+	UNION
+	SELECT 
+		DISTINCT sku
+		FROM products
 
-INSERT INTO productdistinct
-SELECT 	DISTINCT productsku, 
-		MAX(productname), 
+	ALTER TABLE distinctsku				--added the rest of the columns to new table
+	ADD COLUMN name VARCHAR,
+	ADD COLUMN category VARCHAR,
+	ADD COLUMN stocklevel INT,
+	ADD COLUMN restockingleadtime INT,
+	ADD COLUMN sentimentscore decimal,
+	ADD COLUMN sentimentmagnitude decimal
+
+	INSERT INTO productdistinct			--added the rest of the data to new table
+	SELECT 	DISTINCT productsku, 			--categories will be slightly off since only 1 category will be chosen
+		MAX(productname), 				-- there were many same products under different categories. (may be a future issue to address)
 		MAX(category), 
 		MAX(stocklevel), 
 		MAX(restockingleadtime),
 		MAX(sentimentscore),
 		MAX(sentimentmagnitude)
-FROM productdetails
-GROUP BY productsku
-
-
-------------------------------------------
---query 7 + 8
-------------------------------------------
-
-CREATE TABLE visitorsdistinct(
-	websitevisitid INT,
-	PRIMARY KEY (websitevisitid)
-)
+	FROM productdetails
+	GROUP BY productsku

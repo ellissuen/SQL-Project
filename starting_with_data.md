@@ -2,7 +2,7 @@
 
 SQL Queries:
 
--- returns the number of visits to the site vs the number of purchase transactions on the site
+      -- returns the number of visits to the site vs the number of purchase transactions on the site
       SELECT COUNT(visitorid), COUNT(revenue)
       FROM visitortransactions
   
@@ -15,17 +15,17 @@ There were a total of over 62,000 visits to the site but only 468 purchases were
 
 SQL Queries:
 
---returns the avergae time on site. About 4 minutes 42 seconds
+      --returns the avergae time on site. About 4 minutes 42 seconds
       SELECT AVG(timeonsite) 
       FROM visitortransactions
 
---returns the number of website visits ABOVE the average time
+      --returns the number of website visits ABOVE the average time
       SELECT COUNT(timeonsite) 
       FROM visitortransactions
       WHERE timeonsite > '00:04:42.379928'        --AVG(timeonsite)
         AND revenue is not null
 
---returns the number of website visits BELOW the average time
+      --returns the number of website visits BELOW the average time
       SELECT COUNT(timeonsite) 
       FROM visitortransactions
       WHERE timeonsite < '00:04:42.379928'
@@ -40,11 +40,11 @@ When considering the 'timeonsite' in general, more purchases are made when the u
 
 SQL Queries:
 
---Returns the average amount of pages viewed per visit. About 5.2 pages viewed
+      --Returns the average amount of pages viewed per visit. About 5.2 pages viewed
       SELECT AVG(pageview)
       FROM visitortransactions
 
---Returns the number of pages views sorted by the number of times it was viewed as much, and the number of transactions it --generated
+      --Returns the number of pages views sorted by the number of times it was viewed as much, and the number of transactions it generated
       SELECT pageview, COUNT(pageview), COUNT(revenue)
       FROM visitortransactions
       GROUP BY pageview
@@ -59,7 +59,7 @@ When considering the number of pages viewed against the prescence of a purchase,
 
 SQL Queries:
 
---returns the product and the category it belongs to, compared to the preference as a multiplier of sentiment score and -----magnitude
+      --returns the product and the category it belongs to, compared to the preference as a multiplier of sentiment score and magnitude
       SELECT productname, category, sentimentscore * sentimentmagnitude AS preference
       FROM productdetails
       WHERE sentimentscore is not null
@@ -77,7 +77,7 @@ The most preferred product is a tie between: "Men's Quilted Insulated Vest Black
 
 SQL Queries:
 
---returns the product, category it belongs to, preference and the number of transactions made on that preferred product
+      --returns the product, category it belongs to, preference and the number of transactions made on that preferred product
       SELECT productname, category, sentimentscore * sentimentmagnitude AS preference, COUNT(revenue)
       FROM productdetails p
       JOIN visitortransactions v ON p.productsku = v.sku 
@@ -87,8 +87,8 @@ SQL Queries:
       GROUP BY productname, category, sentimentscore * sentimentmagnitude
       ORDER BY COUNT(revenue) DESC
       
---returns the product, category it belongs to, preference and the number of transactions made on that preferred product
---BUT! focusing only on the low preference scoring products
+      --returns the product, category it belongs to, preference and the number of transactions made on that preferred product
+      --BUT! focusing only on the low preference scoring products
       SELECT productname, category, sentimentscore * sentimentmagnitude AS preference, COUNT(revenue)
       FROM productdetails p
       JOIN visitortransactions v ON p.productsku = v.sku 

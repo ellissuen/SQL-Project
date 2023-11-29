@@ -25,23 +25,23 @@ If moving forward with this company, it would make sense to double down on effor
 ## Challenges 
 The list of challenges for this project were quite extensive. Starting with the initial data, there was not much to work off of since many data points seemed to be duplicates, incorrect and very disorganized. Early on in the project, a majot challenge was just being able to plan out what steps to take. As the project continued however, here are a list of some specific issues that I ran into and how I tried to justify / solve them:
 
-1.visitid / fullvisitorid not coinciding at times and not being a PK. I dismissed the fullvisitorid as it seemed more redundant that the visitid. Without a PK however, I enventually made a new column 'websitevisitid' to designate every new instance of an user visiting the website as the pseudo-PK. I was unable to still assign the PK though values were distinct. This may be a future consideration to look into but did not affect the project (especially the analysis questions) significantly.
+1.visitid / fullvisitorid not coinciding at times and not having a PK. I dismissed the fullvisitorid as it seemed more redundant that the visitid. Without a PK however, I enventually made a new column 'id' to designate every new instance of an user visiting the website as the pseudo-PK. I ran into much difficulty trying to figure out how to get it to work until I finally was able to get a sequence for this PK.
 
-2.sku PK not working. Similarily, I was unable to return only distinct values of the sku since there were so many redundancies and strange category types. These category types contained a multitude of syntax difference that were very difficult to group up. Though usable to queries to get a general sense of products and their categories, it is not the more robust system. Without this PK, I was still able to aggregate the values under the sku and it did not affect my analysis. This can also be looked into for future fixes
+2.sku PK not working. Similarily, I was unable to return only distinct values of the sku since there were so many redundancies and strange category types. These category types contained a multitude of syntax difference that were very difficult to group up. Though usable to queries to get a general sense of products and their categories. It was not until much later in the project that upon revisiting it and deciding to use my already cleaned table to make a even "cleaner" table did it finally work.
 
 3. Some challenges came as learning new coding functions of which I was able to learn from ChatGPT. Some challenges were being unable to CAST values as different data types until it was first recognized as a number by inputing the string ~ E'^\\d+\\.?\\d*$'. This may have been due to a importing error on my end when I first transferred the original relations into pgAdmin. Other functions such as CARDINALITY, SPLIT_PART, string_to_array, and COALESCE were taught to me by ChatGPT.
 
-4. In general, this was definitely a "throw you in the deep end" type of project and not truly understanding what to expect or what is expected made it that much more difficult but also helped me learn that much more.
+4. In general, this was definitely a "throw you in the deep end" type of project and not truly understanding what to expect or what is expected made it that much more difficult but also helped me learn that much more. 
 
 ## Future Goals
-The first thing to address would be to create proper PK and FK for all relations made. This will undoubtly take a lot of time to sort though the data and make sure that no redundancies are recorded. However, the trade off would be that the analysis of data would be much more accurate.
+The first thing to address would be to create proper PK and FK for all relations made. This will undoubtly take a lot of time to sort though the data and make sure that no redundancies are recorded. However, the trade off would be that the analysis of data would be much more accurate. The presence of PKs within all tables would ultimately help sort out a lot of the redundant data within the other tables
 
 Along with this goal, a more intricate network of new relations would be helpful in breaking down the data into smaller, more managable tables. This would serve to streamline the analysis front in future projects. When brainstorming for this project, that was an original idea that I had but upon investigation of the data, I realized that this was not a attainable goal, both due to my personal understanding and ability in PosgreSQL and with the time allotted for this project. Ideally, a number of relations would be created including one for different users, a log of all sessions, products, product restocking, product categories, a log of orders and refunds, and a log of website traffic.
 
-More intricate statistical test could be run to see the signifance limit of the analysis queries to get a better understanding of the magnitude of each query result if this were for guiding important decisions for an active company.
+More intricate statistical test could be run to see the signifance limit of the analysis queries to get a better understanding of the magnitude of each query result if this were for guiding important decisions for an active company. Better data collection practices would also be helpful if this was a real company for future proofing this process.
+
 
 ## References
-
-Openai.com, https://chat.openai.com/. Accessed 28 Nov. 2023.
+1. Openai.com, https://chat.openai.com/. Accessed 28 Nov. 2023.
 
 

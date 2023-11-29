@@ -2,28 +2,28 @@
 
 SQL Queries:
 
---returns country sorted by the number of transactions 	
+	--returns country sorted by the number of transactions 	
  	SELECT country, COUNT(revenue)
 	FROM visitortransactions
 	GROUP BY country
 	HAVING count(revenue) > 0
 	ORDER BY COUNT(revenue) DESC
 
---returns country sorted by the total revenue 
+	--returns country sorted by the total revenue 
 	SELECT country, SUM(revenue)
 	FROM visitortransactions
 	GROUP BY country
 	HAVING SUM(revenue) > 0
 	ORDER BY SUM(revenue) DESC
 
---returns city sorted by the number of transactions
+	--returns city sorted by the number of transactions
 	SELECT city, COUNT(revenue)
 	FROM visitortransactions
 	GROUP BY city
 	HAVING count(revenue) > 0
 	ORDER BY COUNT(revenue) DESC
 
---returns city sorted by the total revenue
+	--returns city sorted by the total revenue
 	SELECT city, SUM(revenue)
 	FROM visitortransactions
 	GROUP BY city
@@ -43,29 +43,29 @@ In terms of cities, out of the top 10 cities, 9 are located within the United St
 
 SQL Queries:
 
---returns country sorted by the average quantity of products ordered
+	--returns country sorted by the average quantity of products ordered
 	SELECT country, AVG(quantity)
 	FROM visitortransactions
 	GROUP BY country
 	HAVING AVG(quantity) is not null
 	ORDER BY AVG(quantity) DESC
 
---confirming that Spain was an outlier. 
---there was only 1 order with 10 products in the single order
+	--confirming that Spain was an outlier. 
+	--there was only 1 order with 10 products in the single order
 	SELECT * 
 	FROM visitortransactions
 	WHERE 	country = 'Spain' AND
 		revenue is not null
 
---returns city sorted by the average quantity of products ordered
+	--returns city sorted by the average quantity of products ordered
 	SELECT city, AVG(quantity)
 	FROM visitortransactions
 	GROUP BY city
 	HAVING AVG(quantity) is not null
 	ORDER BY AVG(quantity) DESC
 
---confirming that Madrid was an outlier. 
---there was only 1 order with 10 products in the single order
+	--confirming that Madrid was an outlier. 
+	--there was only 1 order with 10 products in the single order
 	SELECT * 
 	FROM visitortransactions
 	WHERE 	city = 'Madrid' AND
@@ -84,15 +84,15 @@ Sorting by city, (query #3) we can see that Atlanta leads the highest number of 
 
 SQL Queries:
 
---returns the country and category sorted by the number of transactions made and the number of products in each category ----sold
-	SELECT COUNT(revenue), COUNT(category), category, country
+	--returns the country and category sorted by the number of transactions made and the number of products in each 	category sold
+ 	SELECT COUNT(revenue), COUNT(category), category, country
 	FROM visitortransactions v
 	JOIN productdetails p ON v.sku = p.productsku
 	WHERE country = 'United States' 		-- OR 'Canada' OR 'Isreal'
 	GROUP BY country, category
 	ORDER BY count(category) DESC
 
---returns the city and category sorted by the number of transactions made and the number of products in each category sold
+	--returns the city and category sorted by the number of transactions made and the number of products in each 		category sold
 	SELECT COUNT(revenue), COUNT(category), category, city
 	FROM visitortransactions v
 	JOIN productdetails p ON v.sku = p.productsku
@@ -114,7 +114,7 @@ Across the top 3 highest transaction cities, (New York, Sunnyvale and Mountain V
 
 SQL Queries:
 
---returns the country and product sorted by the number of products and the number of transactions
+	--returns the country and product sorted by the number of products and the number of transactions
 	SELECT country, productname, COUNT(productname), COUNT(revenue)
 	FROM visitortransactions v
 	JOIN productdetails p ON v.sku = p.productsku
@@ -138,7 +138,7 @@ In Israel the "Protect Smoke + CO Black Wired Alarm-USA" was the top-seller. The
 
 SQL Queries:
 
---returns the country, product, which category the product is from and number of products sorted by the total revenue that --visitors generated
+	--returns the country, product, which category the product is from and number of products sorted by the total 		revenue that visitors generated
 	SELECT country, productname, category, quantity, SUM(revenue)
 	FROM visitortransactions v
 	JOIN productdetails p ON v.sku = p.productsku
